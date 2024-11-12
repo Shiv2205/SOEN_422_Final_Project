@@ -1,2 +1,2 @@
-./Back-End/node_modules/*
-./Back-End/*lock*
+Back-End/node_modules/*
+Back-End/*lock*
