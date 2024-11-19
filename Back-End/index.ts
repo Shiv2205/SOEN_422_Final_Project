@@ -1,8 +1,13 @@
-import express, { Request, Response } from 'express'
-import cors                           from "cors"
-import dotenv                         from "dotenv"
-import cookieParser                   from "cookie-parser"
-import HTTP                           from "@Util/HTTPCodes"
+import express, 
+     { Request, 
+       Response, 
+       NextFunction }     from "express"
+import cors               from "cors"
+import dotenv             from "dotenv"
+import cookieParser       from "cookie-parser"
+import HTTP               from "@Util/HTTPCodes"
+import createError        from "http-errors"
+
 //Routes import
 
 
@@ -22,34 +27,10 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(cors({ origin: [HOPPSCOTCH, CLIENT, "*"] }));
 
-
-/**
- * DB test route
- * TO BE REMOVED
- */
-// app.get("/test-db", async (req, res) => {
-// 	try {
-// 		const pool = await Database.getConnection();
-// 		if (pool) {
-// 			const result = await pool.request().query("SELECT 1 AS number");
-// 			res.status(HTTP.OK).send({
-// 				message: "Database connected successfully!",
-// 				result: result.recordset,
-// 			});
-// 		} else {
-// 			throw new Error("Connection error in test-db");
-// 		}
-// 	} catch (error) {
-// 		res
-// 			.status(HTTP.SERVER_ERR)
-// 			.send({ message: "Database connection failed", error });
-// 	}
-// });
-
 //Handle 404
-// app.use((req: Request, res: Response, next: NextFunction) => {
-// 	// next(createError(HTTP.NOT_FOUND, "Page not found!!!"));
-// });
+app.use((req: Request, res: Response, next: NextFunction) => {
+	next(createError(HTTP.NOT_FOUND, "Page not found!!!"));
+});
 
 //Listen for requests
 app.listen(PORT, () => {
