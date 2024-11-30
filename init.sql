@@ -1,64 +1,66 @@
 CREATE TABLE RFID_Signature ( 
-    RFID      VARCHAR(255)  PRIMARY KEY,
-    type      VARCHAR(255) NOT NULL,
-    CONSTRAINT chk_type CHECK (type IN ('Professor', 'Student'))
+    RFID      TEXT PRIMARY KEY,
+    type      TEXT NOT NULL CHECK (type IN ('Professor', 'Student'))
 );
 
 CREATE TABLE Professor ( 
-    id        INT           PRIMARY KEY,
-    name      VARCHAR(255),
-    email     VARCHAR(255),
-    RFID_Sig  VARCHAR(255),
+    id        INTEGER PRIMARY KEY,
+    name      TEXT,
+    email     TEXT,
+    RFID_Sig  TEXT,
     FOREIGN KEY (RFID_Sig) REFERENCES RFID_Signature(RFID)
 );
 
 CREATE TABLE Student ( 
-    id        INT           PRIMARY KEY,
-    name      VARCHAR(255),
-    email     VARCHAR(255),
-    RFID_Sig  VARCHAR(255),
+    id        INTEGER PRIMARY KEY,
+    name      TEXT,
+    email     TEXT,
+    RFID_Sig  TEXT,
     FOREIGN KEY (RFID_Sig) REFERENCES RFID_Signature(RFID)
 );
 
 CREATE TABLE Room ( 
-    room_number VARCHAR(255) PRIMARY KEY
+    room_number TEXT PRIMARY KEY
 );
 
 CREATE TABLE Course ( 
-    code         VARCHAR(255),
-    section      VARCHAR(255),
-    professor_id INT,
+    code         TEXT,
+    section      TEXT,
+    professor_id INTEGER,
     PRIMARY KEY (code, section),
     FOREIGN KEY (professor_id) REFERENCES Professor(id)
 );
 
 CREATE TABLE Class ( 
-    id             VARCHAR(255)  PRIMARY KEY,
-    course_code    VARCHAR(255),
-    course_section VARCHAR(255),
-    room_number    VARCHAR(255),
-    start_time     TIME,
-    end_time       TIME,
+    id             TEXT PRIMARY KEY,
+    course_code    TEXT,
+    course_section TEXT,
+    room_number    TEXT,
+    start_time     TEXT,
+    end_time       TEXT,
     FOREIGN KEY (course_code, course_section) REFERENCES Course(code, section),
     FOREIGN KEY (room_number)                 REFERENCES Room(room_number)
 );
 
 CREATE TABLE Class_Schedule (
-    class_id    VARCHAR(255),
-    student_id  VARCHAR(255),
-    PRIMARY KEY (class_id, student_id)
+    class_id    TEXT,
+    student_id  INTEGER,
+    PRIMARY KEY (class_id, student_id),
+    FOREIGN KEY (class_id) REFERENCES Class(id),
+    FOREIGN KEY (student_id) REFERENCES Student(id)
 );
 
 CREATE TABLE Room_Log (
-    room_number VARCHAR(255),
-    RFID_Sig    VARCHAR(255),
-    recorded_on DATE,
-    recorded_at DATETIME,
+    room_number TEXT,
+    RFID_Sig    TEXT,
+    recorded_on TEXT,
+    recorded_at TEXT,
     PRIMARY KEY (room_number, RFID_Sig),
     FOREIGN KEY (room_number)   REFERENCES Room(room_number),
     FOREIGN KEY (RFID_Sig)      REFERENCES RFID_Signature(RFID)
 );
 
+-- Insert data
 INSERT INTO RFID_Signature (RFID, type) VALUES
 ('RFID123', 'Professor'),
 ('RFID124', 'Student'),

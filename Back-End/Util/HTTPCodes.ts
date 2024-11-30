@@ -1,4 +1,3 @@
-
 /*HTTP response status codes*/
 
 //Successful Responses
@@ -16,7 +15,8 @@ const NOT_FOUND       = 404;
 const SERVER_ERR      = 500;
 
 
-const HTTP = {
+const HTTP = 
+{
   OK,
   CREATED,
   ACCEPTED,
