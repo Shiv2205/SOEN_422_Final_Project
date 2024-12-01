@@ -12,11 +12,11 @@
 #define SERVER_BASE                       "https://backend-481246656974.northamerica-northeast1.run.app"
 
 
-//Struct type to store WiFi Credentials
-
 //Namespace to logically group WiFi functions 
 namespace Wireless
 {
+
+  //Struct type to store WiFi Credentials
   struct Credentials_t
   {
     const char* ssid;

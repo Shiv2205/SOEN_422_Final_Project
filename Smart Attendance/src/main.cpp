@@ -1,47 +1,30 @@
-#include <SPI.h>
-#include <MFRC522.h>
+#include <Arduino.h>
+#include <RFID.h>
+#include <BLE.h>
 
-/**Defines */
-//RFID Sensor
-#define RST_PIN   22   // Reset pin
-#define SS_PIN    5    // Slave select pin
-
-//Status LEDs
-#define RED_PIN       12
-#define YELLOW_PIN    13
-#define GREEN_PIN     14
-
-/**Declarations */
-//RFID Sensor
-MFRC522 rfid(SS_PIN, RST_PIN);
 
 void setup() 
 {
     Serial.begin(115200);
-    SPI.begin(18, 19, 23); // SCK, MISO, MOSI
-    rfid.PCD_Init();
 
-    Serial.println(F("RFID Reader Initialized"));
+    RFID::Init();
+    BLE ::Init();
 }
 
 void loop() 
 {
+    std::string card_id;
+
     // Look for a card
-    if (( ! rfid.PICC_IsNewCardPresent()) || ( ! rfid.PICC_ReadCardSerial())) 
-    {
-        delay(50);
-        return;
-    }
+    card_id = RFID::Watch_For_Cards();
 
-    // Print card UID
-    Serial.print(F("Card UID: "));
-    for (byte i = 0; i < rfid.uid.size; i++) 
+    if(NOT_FOUND != card_id)
     {
-        Serial.print(rfid.uid.uidByte[i] < 0x10 ? " 0" : " ");
-        Serial.print(rfid.uid.uidByte[i], HEX);
+      Serial.println(card_id.c_str());
     }
-    Serial.println();
-
-    // Halt the card
-    rfid.PICC_HaltA();
+    else
+    {
+      //BLE::Get_Characteristic()->setValue("Card ID: " + card_id);
+      //BLE::Get_Characteristic()->notify();
+    }
 }
