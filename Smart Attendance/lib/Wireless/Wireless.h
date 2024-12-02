@@ -12,23 +12,23 @@
 #define SERVER_BASE                       "https://backend-481246656974.northamerica-northeast1.run.app"
 
 
-//Namespace to logically group WiFi functions 
-namespace Wireless
+/**Types */
+struct Credentials_t                                                           //Struct type to store WiFi Credentials
+{
+  std::string ssid;
+  std::string password; 
+};
+
+ 
+namespace Wireless                                                             //Namespace to logically group WiFi functions
 {
 
-  //Struct type to store WiFi Credentials
-  struct Credentials_t
-  {
-    const char* ssid;
-    const char* password; 
-  };
-
-  extern HTTPClient  http;
+  extern HTTPClient     http;
+  extern Credentials_t  wifi_cred;
 
   //static int Strip_JSON_quotes(String json_int);
 
-  //Setup WiFi and start connection
-  void WiFi_setup(Credentials_t*  wifi_credentials);
+  void WiFi_setup(Credentials_t*  wifi_credentials);                           //Setup WiFi and start connection
   
 
 };

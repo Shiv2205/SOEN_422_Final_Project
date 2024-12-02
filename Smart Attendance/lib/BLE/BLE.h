@@ -8,6 +8,7 @@
 #include <BLEDevice.h>
 #include <BLEUtils.h>
 #include <BLEServer.h>
+#include <Wireless.h>
 
 
 /* Macros */
@@ -20,6 +21,7 @@
 enum Command
 {
   AUTH,
+  WIFI,
   CONN_STATUS,
   UNKNOWN,
 };
@@ -29,11 +31,15 @@ enum Command
 namespace BLE
 {
   /**Declarations */
-    extern BLEServer*           server_ptr;
-    extern BLEService*          service_ptr;
-    extern BLECharacteristic*   characteristic_ptr;
-    extern BLEAdvertising*      advertising_ptr;
+  //BLE
+  extern BLEServer*           server_ptr;
+  extern BLEService*          service_ptr;
+  extern BLECharacteristic*   characteristic_ptr;
+  extern BLEAdvertising*      advertising_ptr;
 
+  //Wifi
+  extern bool                 is_ssid_config;
+  extern bool                 is_pass_config;
 
   /*************Functions*******************/
   //Setup Bluetooth BLE and start advertising

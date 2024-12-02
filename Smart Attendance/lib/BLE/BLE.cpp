@@ -7,9 +7,13 @@ BLEService*          BLE::service_ptr;
 BLECharacteristic*   BLE::characteristic_ptr;
 BLEAdvertising*      BLE::advertising_ptr;
 
+bool                 BLE::is_ssid_config = false;
+bool                 BLE::is_pass_config = false;
+
 
 /**Function Implementations */
 
+//Custom callback class for the server
 class ServerCallbacks : public BLEServerCallbacks
 {
   void onConnect(BLEServer* pServer) override
@@ -39,6 +43,40 @@ class Command_Callbacks : public BLECharacteristicCallbacks
           characteristic_ptr->setValue("Please tap your card on the reader for authentication");
         break;
 
+        case WIFI:
+          if((BLE::is_ssid_config) && ( ! BLE::is_pass_config))
+          {
+            characteristic_ptr->setValue("Please insert wifi SSID: ");
+            BLE::is_ssid_config = false;
+            BLE::is_pass_config = true;
+          }
+          else if(( ! BLE::is_ssid_config) && (BLE::is_pass_config))
+          {
+            characteristic_ptr->setValue("Please insert wifi password: ");
+            BLE::is_ssid_config = true;
+          }
+          else if((BLE::is_ssid_config) && (BLE::is_pass_config))
+          {
+            characteristic_ptr->setValue("Attempting connection to " + Wireless::wifi_cred.ssid);
+            characteristic_ptr->notify();
+            BLE::is_ssid_config = false;
+            BLE::is_pass_config = false;
+            Serial.printf("SSID: %s\nPassword: %s\n", 
+                          Wireless::wifi_cred.ssid.c_str(),
+                          Wireless::wifi_cred.password.c_str());
+            Wireless::WiFi_setup(&Wireless::wifi_cred);                        //WiFi Setup
+
+            if(WIFI_CONNECTED)
+            {
+              characteristic_ptr->setValue("Succesfully connected to " + Wireless::wifi_cred.ssid);
+            }
+            else
+            {
+              characteristic_ptr->setValue("Error connecting to "      + Wireless::wifi_cred.ssid);
+            }
+          }
+        break;
+
         case CONN_STATUS:
           characteristic_ptr->setValue("Device connected! Awaiting commands");
         break;
@@ -52,6 +90,47 @@ class Command_Callbacks : public BLECharacteristicCallbacks
   }
 
 };
+
+Command Get_Command(std::string& user_command)
+{
+  
+  if((BLE::is_pass_config) && ( ! BLE::is_ssid_config))
+  {
+    Wireless::wifi_cred.ssid = user_command;                                   //Set WiFi SSID
+
+    return Command::WIFI;
+  }
+  else if((BLE::is_ssid_config) && (BLE::is_pass_config))
+  {
+    Wireless::wifi_cred.password = user_command;                               //Set WiFi password
+
+    return Command::WIFI;                                                      
+  }
+  else
+  {
+    auto start_char         = user_command.begin();
+    auto end_char           = user_command.end();
+    auto output_start_char  = start_char;
+
+    std::transform(start_char, end_char, output_start_char, ::tolower);        //Transform user_command to lowercase
+
+    if("auth" == user_command)
+    {
+      return Command::AUTH;
+    }
+    if("wifi" == user_command)
+    {
+      BLE::is_ssid_config = true;
+      return Command::WIFI;
+    }
+    if("status" == user_command)
+    {
+      return Command::CONN_STATUS;
+    }
+
+    return Command::UNKNOWN;                                                   //Default case
+  }
+}
 
 void BLE::Init(void)
 {
@@ -88,26 +167,6 @@ void BLE::Advertising_Setup(BLEAdvertising* advertising_ptr)
 BLECharacteristic* BLE::Get_Characteristic(void)
 {
   return BLE::characteristic_ptr;
-}
-
-Command Get_Command(std::string& user_command)
-{
-  auto start_char         = user_command.begin();
-  auto end_char           = user_command.end();
-  auto output_start_char  = start_char;
-
-  std::transform(start_char, end_char, output_start_char, ::tolower);          //Transform user_command to lowercase
-
-  if(("auth" == user_command) || ("authenticate" == user_command))
-  {
-    return Command::AUTH;
-  }
-  if(("status" == user_command) || ("check connection" == user_command))
-  {
-    return Command::CONN_STATUS;
-  }
-
-  return Command::UNKNOWN;                                                     //Default case
 }
 
 // const char* Hexify_String(std::string& input_str)
