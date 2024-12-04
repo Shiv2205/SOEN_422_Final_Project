@@ -5,6 +5,7 @@
 #include <cctype>
 #include <sstream>
 #include <iomanip>
+#include <vector>
 #include <BLEDevice.h>
 #include <BLEUtils.h>
 #include <BLEServer.h>
@@ -18,11 +19,14 @@
 
 
 /**Types */
+using Course_List = std::vector<std::string>;
+
 enum Command
 {
   AUTH,
   WIFI,
   CONN_STATUS,
+  COURSE_SELECT,
   UNKNOWN,
 };
 
@@ -41,6 +45,17 @@ namespace BLE
   extern bool                 is_ssid_config;
   extern bool                 is_pass_config;
 
+  //Config
+  extern bool                 is_device_configured;
+  extern bool                 is_auth;
+  extern bool                 is_course_select;
+
+  //Courses
+  extern Course_List          course_list;
+  extern std::string          course_menu;
+  extern std::string          selected_course;
+
+
   /*************Functions*******************/
   //Setup Bluetooth BLE and start advertising
   void Init(void);
@@ -50,9 +65,13 @@ namespace BLE
   //Getter for Characteristics pointer
   BLECharacteristic* Get_Characteristic(void);
 
+  Course_List&       Get_Course_List(void);
+
+  void DeInit(void);
+
 };
 
-Command Get_Command(std::string& user_command);
+Command Get_Command(std::string user_command);
 
 // const char* Hexify_String(std::string& input_str);
 // const char* String_To_Decimal(std::string& input_str);

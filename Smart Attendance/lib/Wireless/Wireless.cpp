@@ -1,6 +1,5 @@
 #include "Wireless.h"
 
-HTTPClient      Wireless::http;
 Credentials_t   Wireless::wifi_cred;
 
 
@@ -10,9 +9,11 @@ Credentials_t   Wireless::wifi_cred;
 //   return (int)json_int.toInt();
 // }
 
-void Wireless::WiFi_setup(Credentials_t*  wifi_credentials)
+void Wireless::Init(Credentials_t*  wifi_credentials)
 {
   WiFi.mode (WIFI_MODE_STA);
+
+  Serial.printf("SSID: %s\nPassword: %s\n", wifi_credentials->ssid.c_str(), wifi_credentials->password.c_str());
   WiFi.begin(wifi_credentials->ssid.c_str(), 
              wifi_credentials->password.c_str());
 

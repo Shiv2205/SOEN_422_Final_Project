@@ -36,6 +36,8 @@ namespace RFID
   std::string Watch_For_Cards(void);
 
   void Print_Card_UID(void);
+
+  void Halt_Card(void);
 };
 
 

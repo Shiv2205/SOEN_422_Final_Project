@@ -16,8 +16,8 @@ void RFID::Init(void)
 std::string RFID::Watch_For_Cards(void)
 {
   std::string card_id = "";
-  // Look for a card
-  if (( ! rfid.PICC_IsNewCardPresent()) || ( ! rfid.PICC_ReadCardSerial())) 
+  
+  if (( ! rfid.PICC_IsNewCardPresent()) || ( ! rfid.PICC_ReadCardSerial()))    // Look for a card
   {
     delay(50);
     return NOT_FOUND;
@@ -25,20 +25,19 @@ std::string RFID::Watch_For_Cards(void)
 
   for (byte i = 0; i < rfid.uid.size; i++) 
   {
-    card_id += Byte_To_Hex(rfid.uid.uidByte[i]) + " ";
+    card_id += Byte_To_Hex(rfid.uid.uidByte[i]) 
+            + ((i + 1) < rfid.uid.size ? " " : "");
   }
 
-  // Halt the card
-  rfid.PICC_HaltA();
+  rfid.PICC_HaltA();                                                           // Halt the card
 
   return card_id;
 }
 
 void RFID::Print_Card_UID(void)
 {
-  // Print card UID
   Serial.print(F("Card UID: "));
-  for (byte i = 0; i < rfid.uid.size; i++) 
+  for (byte i = 0; i < rfid.uid.size; i++)                                     // Print card UID
   {
     Serial.print(rfid.uid.uidByte[i] < 0x10 ? " 0" : " ");
     Serial.print(rfid.uid.uidByte[i], HEX);
@@ -48,8 +47,14 @@ void RFID::Print_Card_UID(void)
 
 std::string Byte_To_Hex(uint8_t input_byte)
 {
-  char buffer[3]; //Two HEX characters + null terminator
+  char buffer[3];                                                              //Two HEX characters + null terminator
   std::sprintf(buffer, "%02X", input_byte);
 
   return std::string(buffer);
+}
+
+void RFID::Halt_Card(void)
+{
+  // Halt the card
+  rfid.PICC_HaltA();
 }

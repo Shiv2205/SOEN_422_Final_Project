@@ -6,6 +6,7 @@ import dotenv                     from "dotenv"
 import cookieParser               from "cookie-parser"
 import HTTP                       from "@Util/HTTPCodes"
 //Routes import
+import authRouter                 from "@routes/auth"
 
 
 //Dev Consts
@@ -23,6 +24,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({ origin: [HOPPSCOTCH, CLIENT, "*"] }));
+
+/**Routes */
+app.use('/auth', authRouter);
 
 app.get("/test", async(req, res) => 
 {

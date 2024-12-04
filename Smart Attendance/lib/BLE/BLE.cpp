@@ -7,8 +7,16 @@ BLEService*          BLE::service_ptr;
 BLECharacteristic*   BLE::characteristic_ptr;
 BLEAdvertising*      BLE::advertising_ptr;
 
-bool                 BLE::is_ssid_config = false;
-bool                 BLE::is_pass_config = false;
+bool                 BLE::is_ssid_config        = false;
+bool                 BLE::is_pass_config        = false;
+
+bool                 BLE::is_device_configured  = false;
+bool                 BLE::is_auth               = false;
+bool                 BLE::is_course_select      = false;
+
+Course_List          BLE::course_list;
+std::string          BLE::course_menu;
+std::string          BLE::selected_course;
 
 
 /**Function Implementations */
@@ -33,65 +41,106 @@ class Command_Callbacks : public BLECharacteristicCallbacks
 {
   void onWrite(BLECharacteristic* characteristic_ptr) override
   {
-    std::string value = characteristic_ptr->getValue();
+    std::string value       = characteristic_ptr->getValue();
+    std::string conn_status = "Bluetooth: Connected\nWiFi: ";
+    std::string response;
 
     if (value.length() > 0)                                                    //Ensure data is avaliable before processing
     {
       switch (Get_Command(value))
       {
-        case AUTH:
-          characteristic_ptr->setValue("Please tap your card on the reader for authentication");
+        case AUTH:                                                             //**Authentication Command**
+          if( ! WIFI_CONNECTED)
+          {
+            response = "Wifi connection required. Use command \"wifi\"to configure connection.";
+          }
+          else
+          {
+            response = "Please tap your card on the reader for authentication";
+            BLE::is_auth = true;
+          }
         break;
 
-        case WIFI:
+        case WIFI:                                                             //**WIFI Command**
           if((BLE::is_ssid_config) && ( ! BLE::is_pass_config))
           {
-            characteristic_ptr->setValue("Please insert wifi SSID: ");
+            response = "Please insert wifi SSID: ";                            //Set SSID
             BLE::is_ssid_config = false;
             BLE::is_pass_config = true;
           }
           else if(( ! BLE::is_ssid_config) && (BLE::is_pass_config))
           {
-            characteristic_ptr->setValue("Please insert wifi password: ");
+            response = "Please insert wifi password: ";                        //Set password
             BLE::is_ssid_config = true;
           }
           else if((BLE::is_ssid_config) && (BLE::is_pass_config))
           {
-            characteristic_ptr->setValue("Attempting connection to " + Wireless::wifi_cred.ssid);
-            characteristic_ptr->notify();
             BLE::is_ssid_config = false;
             BLE::is_pass_config = false;
-            Serial.printf("SSID: %s\nPassword: %s\n", 
-                          Wireless::wifi_cred.ssid.c_str(),
-                          Wireless::wifi_cred.password.c_str());
-            Wireless::WiFi_setup(&Wireless::wifi_cred);                        //WiFi Setup
+
+            Wireless::Init(&Wireless::wifi_cred);                              //WiFi Setup
+
+            characteristic_ptr->setValue("Attempting connection to " 
+                                          + Wireless::wifi_cred.ssid);
+            characteristic_ptr->notify();
 
             if(WIFI_CONNECTED)
             {
-              characteristic_ptr->setValue("Succesfully connected to " + Wireless::wifi_cred.ssid);
+              response = "Succesfully connected to " +                         //Successful connection
+                          Wireless::wifi_cred.ssid;
             }
             else
             {
-              characteristic_ptr->setValue("Error connecting to "      + Wireless::wifi_cred.ssid);
+              response = "Error connecting to " +                              //unsuccessful connection
+                          Wireless::wifi_cred.ssid;
             }
           }
         break;
 
-        case CONN_STATUS:
-          characteristic_ptr->setValue("Device connected! Awaiting commands");
+        case COURSE_SELECT:                                                    //**Course select Command**
+          BLE::selected_course = "";
+          for(int index = 0; index < BLE::course_list.size(); index++)
+          {
+            if(std::to_string(index + 1) == value)
+            {
+              BLE::selected_course = BLE::course_list.at(index);
+            }
+          }
+
+          if(BLE::selected_course.empty())
+          {
+            response = "Choice should be a number representing the course.\n";
+            response += BLE::course_menu;
+          }
+          else
+          {
+            response = "Taking attendance for " + BLE::selected_course + "\n";
+            response += "Device will be disconnected from bluetooth soon.";
+
+            BLE::is_course_select     = false;
+            BLE::is_device_configured = true;
+          }
+
         break;
 
-        default:
-          characteristic_ptr->setValue("Unrecognized! Try \"auth\" or \"status\"");
+        case CONN_STATUS:                                                      //**Status Command**
+          conn_status += WIFI_CONNECTED ? "Connected" : "Disconnected"; 
+
+          response = conn_status;
+        break;
+
+        default:                                                               //**Default Case Handling**
+          response = "Unrecognized! Try \"auth\" or \"status\"";
         break;
       }
+      characteristic_ptr->setValue(response);
       characteristic_ptr->notify();
     }
   }
 
 };
 
-Command Get_Command(std::string& user_command)
+Command Get_Command(std::string user_command)
 {
   
   if((BLE::is_pass_config) && ( ! BLE::is_ssid_config))
@@ -105,6 +154,10 @@ Command Get_Command(std::string& user_command)
     Wireless::wifi_cred.password = user_command;                               //Set WiFi password
 
     return Command::WIFI;                                                      
+  }
+  else if(BLE::is_course_select)
+  {
+    return Command::COURSE_SELECT;
   }
   else
   {
@@ -169,31 +222,25 @@ BLECharacteristic* BLE::Get_Characteristic(void)
   return BLE::characteristic_ptr;
 }
 
-// const char* Hexify_String(std::string& input_str)
-// {
-//   std::ostringstream hexStream;
-//   int count = 1;
-//   for (unsigned char c : input_str) {
-//     hexStream << std::hex << std::setfill('0') << std::setw(2) << static_cast<int>(c) << " ";
-//   }
-//   return hexStream.str().c_str();
-// }
+Course_List& BLE::Get_Course_List(void)
+{
+  return BLE::course_list;
+}
 
-// const char* String_To_Decimal(std::string& input_str)
-// {
-//   std::ostringstream dec_stream;
-//   for (unsigned char c : input_str) {
-//     dec_stream << "Char: " << c << " | Decimal: " << static_cast<int>(c) << "\n";
-//     if (isprint(c)) 
-//     {
-//       Serial.print(c);
-//     } 
-//     else 
-//     {
-//       Serial.print("[0x");
-//       Serial.print((int)c, HEX); // Print non-printable as hex
-//       Serial.print("]");
-//     }
-//   }
-//   return dec_stream.str().c_str();
-// }
+void BLE::DeInit(void)
+{
+  if (BLE::advertising_ptr) 
+  {
+    BLE::advertising_ptr->stop();                                              //Stop advertising
+  }
+
+  if (BLE::server_ptr) 
+  {
+    BLE::server_ptr->disconnect(0);                                            //Disconnect all active clients
+  }
+
+  BLEDevice::deinit();                                                         //Deinitialize BLE
+
+  esp_bt_controller_disable();
+  esp_bt_controller_mem_release(ESP_BT_MODE_BLE);                              //Release BLE memory
+}

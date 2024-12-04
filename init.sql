@@ -19,10 +19,6 @@ CREATE TABLE Student (
     FOREIGN KEY (RFID_Sig) REFERENCES RFID_Signature(RFID)
 );
 
-CREATE TABLE Room ( 
-    room_number TEXT PRIMARY KEY
-);
-
 CREATE TABLE Course ( 
     code         TEXT,
     section      TEXT,
@@ -35,11 +31,9 @@ CREATE TABLE Class (
     id             TEXT PRIMARY KEY,
     course_code    TEXT,
     course_section TEXT,
-    room_number    TEXT,
     start_time     TEXT,
     end_time       TEXT,
-    FOREIGN KEY (course_code, course_section) REFERENCES Course(code, section),
-    FOREIGN KEY (room_number)                 REFERENCES Room(room_number)
+    FOREIGN KEY (course_code, course_section) REFERENCES Course(code, section)
 );
 
 CREATE TABLE Class_Schedule (
@@ -50,51 +44,47 @@ CREATE TABLE Class_Schedule (
     FOREIGN KEY (student_id) REFERENCES Student(id)
 );
 
-CREATE TABLE Room_Log (
-    room_number TEXT,
+CREATE TABLE Attendance_Log (
     RFID_Sig    TEXT,
     recorded_on TEXT,
     recorded_at TEXT,
-    PRIMARY KEY (room_number, RFID_Sig),
-    FOREIGN KEY (room_number)   REFERENCES Room(room_number),
-    FOREIGN KEY (RFID_Sig)      REFERENCES RFID_Signature(RFID)
+    PRIMARY KEY (RFID_Sig, recorded_on, recorded_at),
+    FOREIGN KEY (RFID_Sig) REFERENCES RFID_Signature(RFID)
 );
 
 -- Insert data
 INSERT INTO RFID_Signature (RFID, type) VALUES
-('RFID123', 'Professor'),
-('RFID124', 'Student'),
-('RFID125', 'Student'),
-('RFID126', 'Professor');
+('E1 11 30 00', 'Professor'),
+('D3 DE B6 14', 'Student'),
+('6B CB A2 59', 'Student'),
+('59 48 51 C1', 'Student'),
+('59 48 51 C2', 'Professor');
 
 INSERT INTO Professor (id, name, email, RFID_Sig) VALUES
-(1, 'Dr. John Smith', 'john.smith@university.edu', 'RFID123'),
-(2, 'Dr. Emily Carter', 'emily.carter@university.edu', 'RFID126');
+(1, 'Dr. Sandra Céspedes', 'sandra.cespedes@university.edu', 'E1 11 30 00'),
+(2, 'Dr. Aiman Hanna', 'aiman.hanna@university.edu', '59 48 51 C2');
 
 INSERT INTO Student (id, name, email, RFID_Sig) VALUES
-(101, 'Alice Johnson', 'alice.johnson@university.edu', 'RFID124'),
-(102, 'Bob Williams', 'bob.williams@university.edu', 'RFID125');
-
-INSERT INTO Room (room_number) VALUES
-('A101'),
-('B202'),
-('C303');
+(101, 'Alice Johnson', 'alice.johnson@university.edu', 'D3 DE B6 14'),
+(102, 'Bob Williams', 'bob.williams@university.edu', '6B CB A2 59'),
+(103, 'Shivam Veerabudren', 'shiv.veera@university.edu', '59 48 51 C1');
 
 INSERT INTO Course (code, section, professor_id) VALUES
-('CS101', 'A', 1),
-('CS102', 'B', 2);
+('SOEN 422', 'MM', 1),
+('COEN 320', 'S', 2);
 
-INSERT INTO Class (id, course_code, course_section, room_number, start_time, end_time) VALUES
-('CL101', 'CS101', 'A', 'A101', '09:00:00', '10:30:00'),
-('CL102', 'CS102', 'B', 'B202', '11:00:00', '12:30:00');
+INSERT INTO Class (id, course_code, course_section, start_time, end_time) VALUES
+('CL101', 'SOEN 422', 'MM', '09:00:00', '10:30:00'),
+('CL102', 'COEN 320', 'S', '11:00:00', '12:30:00');
 
 INSERT INTO Class_Schedule (class_id, student_id) VALUES
 ('CL101', 101),
-('CL101', 102),
-('CL102', 101);
+('CL101', 103),
+('CL102', 102),
+('CL102', 103);
 
-INSERT INTO Room_Log (room_number, RFID_Sig, recorded_on, recorded_at) VALUES
-('A101', 'RFID123', '2024-11-11', '2024-11-11 09:05:00'),
-('A101', 'RFID124', '2024-11-11', '2024-11-11 09:10:00'),
-('B202', 'RFID126', '2024-11-11', '2024-11-11 11:15:00'),
-('B202', 'RFID125', '2024-11-11', '2024-11-11 11:20:00');
+INSERT INTO Attendance_Log (RFID_Sig, recorded_on, recorded_at) VALUES
+('RFID123', '2024-11-11', '2024-11-11 09:05:00'),
+('RFID124', '2024-11-11', '2024-11-11 09:10:00'),
+('RFID126', '2024-11-11', '2024-11-11 11:15:00'),
+('RFID125', '2024-11-11', '2024-11-11 11:20:00');
