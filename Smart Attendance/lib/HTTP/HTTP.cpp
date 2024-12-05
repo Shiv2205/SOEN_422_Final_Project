@@ -41,7 +41,34 @@ void HTTP::Authenticate_Prof(JSON* payload_ptr, std::string RFID_Sig)
   cJSON_Delete(request_body);
 }
 
+void HTTP::Log_Attendance(JSON* payload_ptr, std::string course_code, std::string RFID_Sig)
+{
+  std::string attendance_route = SERVER_BASE + std::string("/attendance");
 
+  cJSON* request_body = cJSON_CreateObject();
+
+
+  cJSON_AddStringToObject(request_body, "course_code", course_code.c_str());
+  cJSON_AddStringToObject(request_body, "RFID_Sig"   , RFID_Sig.c_str());
+
+  char* req_body_str = cJSON_PrintUnformatted(request_body);
+
+  HTTP::request.begin(attendance_route.c_str());
+  HTTP::request.addHeader("Content-Type", "application/json");
+
+  int response_code = HTTP::request.POST(req_body_str);
+
+  if(response_code > 0)
+  {
+    String      response  = HTTP::request.getString();
+    const char* payload   = response.c_str();
+
+    payload_ptr->Set_Json(cJSON_Parse(payload));
+  }
+
+  HTTP::request.end();
+  cJSON_Delete(request_body);
+}
 
 void Test_Request(void)
 {

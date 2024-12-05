@@ -27,29 +27,23 @@ CREATE TABLE Course (
     FOREIGN KEY (professor_id) REFERENCES Professor(id)
 );
 
-CREATE TABLE Class ( 
-    id             TEXT PRIMARY KEY,
-    course_code    TEXT,
-    course_section TEXT,
-    start_time     TEXT,
-    end_time       TEXT,
-    FOREIGN KEY (course_code, course_section) REFERENCES Course(code, section)
-);
 
-CREATE TABLE Class_Schedule (
-    class_id    TEXT,
-    student_id  INTEGER,
-    PRIMARY KEY (class_id, student_id),
-    FOREIGN KEY (class_id) REFERENCES Class(id),
+CREATE TABLE Course_registration(
+    course_code    TEXT,
+    student_id     INTEGER,
+    PRIMARY KEY (course_code, student_id),
+    FOREIGN KEY (course_code) REFERENCES Course(code),
     FOREIGN KEY (student_id) REFERENCES Student(id)
 );
 
 CREATE TABLE Attendance_Log (
-    RFID_Sig    TEXT,
-    recorded_on TEXT,
-    recorded_at TEXT,
-    PRIMARY KEY (RFID_Sig, recorded_on, recorded_at),
-    FOREIGN KEY (RFID_Sig) REFERENCES RFID_Signature(RFID)
+    student_id     INTEGER,
+    course_code    TEXT,
+    recorded_on    TEXT,
+    recorded_at    TEXT,
+    PRIMARY KEY (student_id, course_code, recorded_on),
+    FOREIGN KEY (student_id)  REFERENCES Student(id),
+    FOREIGN KEY (course_code) REFERENCES Course(code)
 );
 
 -- Insert data
@@ -73,18 +67,9 @@ INSERT INTO Course (code, section, professor_id) VALUES
 ('SOEN 422', 'MM', 1),
 ('COEN 320', 'S', 2);
 
-INSERT INTO Class (id, course_code, course_section, start_time, end_time) VALUES
-('CL101', 'SOEN 422', 'MM', '09:00:00', '10:30:00'),
-('CL102', 'COEN 320', 'S', '11:00:00', '12:30:00');
-
 INSERT INTO Class_Schedule (class_id, student_id) VALUES
-('CL101', 101),
-('CL101', 103),
-('CL102', 102),
-('CL102', 103);
+('SOEN 422', 101),
+('SOEN 422', 103),
+('COEN 320', 102),
+('COEN 320', 103);
 
-INSERT INTO Attendance_Log (RFID_Sig, recorded_on, recorded_at) VALUES
-('RFID123', '2024-11-11', '2024-11-11 09:05:00'),
-('RFID124', '2024-11-11', '2024-11-11 09:10:00'),
-('RFID126', '2024-11-11', '2024-11-11 11:15:00'),
-('RFID125', '2024-11-11', '2024-11-11 11:20:00');

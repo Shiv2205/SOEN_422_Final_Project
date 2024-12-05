@@ -29,6 +29,8 @@ namespace HTTP
   extern JSON       json_helper;
 
   void Authenticate_Prof(JSON* payload_ptr, std::string RFID_Sig);
+
+  void Log_Attendance(JSON* payload_ptr, std::string course_code, std::string RFID_Sig);
 }
 
 

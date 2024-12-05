@@ -1,7 +1,6 @@
 ```mermaid
 erDiagram
-
-    RFID_Signature ||--|{ Attendance_Log : "is logged in"    
+    
     RFID_Signature {
       string RFID PK
       enum type "Professor, Student"
@@ -16,7 +15,8 @@ erDiagram
     }
 
     Student ||--|| RFID_Signature : has
-    Student ||--|{ Class_Schedule : has
+    Student ||--|{ Course_Registration : "is registered"
+    Student ||--|{ Attendance_Log : "is logged in"
     Student {
       int id PK
       string name
@@ -24,30 +24,23 @@ erDiagram
       string RFID_Sig FK
     }
 
-    Course ||--|{ Class : "is taught in"
+    Course ||--|{ Attendance_Log : "has"
+    Course ||--|{ Course_Registration : "is in"
     Course {
       string code PK "SOEN 422"
       string section PK
       int professor_id FK
     }
 
-    Class ||--|{ Class_Schedule : "is in"
-    Class {
-      string id PK
-      string course_code FK
-      string course_section FK
-      time start
-      time end
-    }
-
-    Class_Schedule {
-      string class_id PK,FK
-      int student_id PK,FK
+    Course_Registration {
+      string code PK,FK
+      int id PK,FK
     }
 
     Attendance_Log {
-      string RFID_Sig PK,FK
-      date Date "Date this record was created"
+      int student_id PK,FK
+      string course_code PK,FK
+      date Date PK,FK "Date this record was created"
       timestamp time "Time the card was scanned"
     }
 
