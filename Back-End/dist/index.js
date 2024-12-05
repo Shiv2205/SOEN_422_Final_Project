@@ -19,6 +19,7 @@ const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const HTTPCodes_1 = __importDefault(require("./Util/HTTPCodes"));
 //Routes import
 const auth_1 = __importDefault(require("./routes/auth"));
+const attendance_1 = __importDefault(require("./routes/attendance"));
 //Dev Consts
 const HOPPSCOTCH = "chrome-extension://amknoiejhlmhancpahfcfcfhllgkpbld";
 //Express Init
@@ -33,6 +34,7 @@ app.use((0, cookie_parser_1.default)());
 app.use((0, cors_1.default)({ origin: [HOPPSCOTCH, CLIENT, "*"] }));
 /**Routes */
 app.use('/auth', auth_1.default);
+app.use('/attendance', attendance_1.default);
 app.get("/test", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     res.status(HTTPCodes_1.default.OK).send({ message: "Hello World" });
 }));

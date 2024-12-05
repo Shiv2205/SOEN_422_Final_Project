@@ -18,31 +18,25 @@ const HTTPCodes_1 = __importDefault(require("../Util/HTTPCodes"));
 const router = express_1.default.Router();
 router.post("/", function (req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        let auth_payload = req.body;
-        if (0 === Object.keys(auth_payload).length) {
+        let attendance_payload = req.body;
+        if (0 === Object.keys(attendance_payload).length) {
             res.status(HTTPCodes_1.default.BAD_REQUEST).send({ response: "Data not received" });
             return;
         }
         try {
-            console.log("Checking record");
-            if ("59 48 51 C1" === auth_payload.RFID_Sig) {
-                auth_payload.RFID_Sig = "59 48 51 C2";
+            let student_id = (yield Database_1.default.fetchStudID(attendance_payload.RFID_Sig)).id;
+            let isRegistered = yield Database_1.default.isStudentRegistered(attendance_payload.course_code, student_id);
+            if (!isRegistered) {
+                throw new Error("Student not registered for the course.");
             }
-            let record_exists = yield Database_1.default.recordExists("Professor", "RFID_Sig", auth_payload.RFID_Sig);
-            if (record_exists) {
-                let prof_id = yield Database_1.default.fetchProfID(auth_payload.RFID_Sig);
-                let courses = yield Database_1.default.fetchCourses(prof_id.id);
-                res
-                    .status(HTTPCodes_1.default.OK)
-                    .send({ course_list: courses });
-            }
-            else {
-                throw new Error("Invalid credentials");
-            }
+            let response = yield Database_1.default.logAttendance(attendance_payload.course_code, student_id);
+            res
+                .status(HTTPCodes_1.default.CREATED)
+                .send(response);
         }
         catch (error) {
             const err = error;
-            res.status(HTTPCodes_1.default.UNAUTHORIZED).send({ response: err.message });
+            res.status(HTTPCodes_1.default.BAD_REQUEST).send({ response: err.message });
         }
     });
 });

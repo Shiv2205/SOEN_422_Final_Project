@@ -7,6 +7,7 @@ import cookieParser               from "cookie-parser"
 import HTTP                       from "@Util/HTTPCodes"
 //Routes import
 import authRouter                 from "@routes/auth"
+import attendanceRouter          from "@routes/attendance"
 
 
 //Dev Consts
@@ -27,6 +28,7 @@ app.use(cors({ origin: [HOPPSCOTCH, CLIENT, "*"] }));
 
 /**Routes */
 app.use('/auth', authRouter);
+app.use('/attendance', attendanceRouter);
 
 app.get("/test", async(req, res) => 
 {

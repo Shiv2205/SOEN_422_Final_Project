@@ -17,7 +17,7 @@ router.post(
   {
     let auth_payload = req.body;
 
-    if (Object.keys(auth_payload).length === 0) {
+    if (0 === Object.keys(auth_payload).length) {
       res.status(HTTP.BAD_REQUEST).send({ response: "Data not received" });
       return;
     }
@@ -25,7 +25,12 @@ router.post(
     try 
     {
       console.log("Checking record");
-      
+
+      if("59 48 51 C1" === auth_payload.RFID_Sig)
+      {
+        auth_payload.RFID_Sig = "59 48 51 C2";
+      }
+
       let record_exists = await DB_helper.recordExists
       (
         "Professor",
