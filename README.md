@@ -1,7 +1,7 @@
 # Smart Attendance System
 
 ## Demo Video
-
+[![Demo Video](https://i9.ytimg.com/vi_webp/8dqWZcBLxaw/mq1.webp?sqp=CLiT8LsG-oaymwEmCMACELQB8quKqQMa8AEB-AG-B4AC0AWKAgwIABABGGUgZShlMA8=&rs=AOn4CLAo0L088eflJgKO5pX7yjahypalIQ)](https://www.youtube.com/watch?v=8dqWZcBLxaw)
 
 ## Overview
 
