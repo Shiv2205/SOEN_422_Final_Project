@@ -6,9 +6,9 @@
 
 ## Overview
 
-The **Smart Attendance System** is an innovative solution designed to streamline and enhance attendance management in academic settings. By leveraging RFID and BLE technology, this system minimizes classroom disruptions, improves reliability, and ensures secure handling of attendance data.
+The **Smart Attendance System** is an innovative solution designed to enhance attendance management in academic settings. By leveraging RFID and BLE technology, this system aims to minimize classroom disruptions, improve reliability, and ensure secure handling of attendance data.
 
-This project is part of the **Smart Campus Embedded Solutions** initiative and was developed by **Shivam Veerabudren**.
+This project is part of the **SOEN 422** Final project for Fall 2024 and was developed by **Shivam Veerabudren**.
 
 ## Problem Statement
 
@@ -50,18 +50,6 @@ The Smart Attendance System aims to:
 
 ### Cost-Effectiveness
 - Leverages affordable components and free cloud services for deployment.
-
-## Getting Started
-
-### Prerequisites
-- ESP32 development board
-- RFID IC cards and reader
-- Docker
-- Google Cloud account (for Cloud Run)
-
-### Usage
-- Power the ESP32 and scan the RFID card to mark attendance.
-- Monitor attendance records via the cloud-based dashboard.
 
 ---
 
